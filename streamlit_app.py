@@ -6,18 +6,19 @@ import logging
 logging.getLogger("streamlit").setLevel(logging.ERROR)
 import streamlit as st
 
+
 flugzeuge = {
     "LS4": {
-        "G_a_min": 525,
+        "G_a_min": 290,
         "G_a_max": 525,
         "S": 10.5,
-        "G_p": 472.5,
-        "Xone": 90, "Yone": -0.75,
-        "Xtwo": 120, "Ytwo": -0.8,
-        "Xthree": 150, "Ythree": -1.2
+        "G_p": 338.1,
+        "Xone": 90, "Yone": -0.62,
+        "Xtwo": 120, "Ytwo": -0.9,
+        "Xthree": 150, "Ythree": -1.46
     },
     "LS8": {
-        "G_a_min": 525,
+        "G_a_min": 345,
         "G_a_max": 525,
         "S": 10.5,
         "G_p": 346.5,
@@ -27,7 +28,7 @@ flugzeuge = {
     },
 
     "ASW19B": {
-        "G_a_min": 408,
+        "G_a_min": 330,
         "G_a_max": 408,
         "S": 11,
         "G_p": 370.8,
@@ -36,11 +37,27 @@ flugzeuge = {
         "Xthree": 150, "Ythree": -1.49
     }
 }
-
 # Streamlit Dropdown
 import streamlit as st
 wahl = st.selectbox("Flugzeug auswählen", ["LS4", "LS8","ASW19B",])
 params = flugzeuge[wahl]
+
+# --- Eingaben / Konstanten ---
+D = st.slider(
+    "Bitte PFD[km] eingeben",
+    min_value=100,     # Minimalwert
+    max_value=1000,    # Maximalwert
+    value=300,         # Startwert
+    step=25,          # Schrittweite
+    format="%.0f"      # Anzeige mit 1 Nachkommastelle
+)
+#st.write(f"Eingegebener PFD: {D}")
+D= D * 1000
+#D = 300 * 1000  # Überlandflugdistanz [m]
+
+
+
+
 
 # Eingaben automatisch setzen
 G_a_min = params["G_a_min"]
@@ -52,12 +69,25 @@ Xtwo, Ytwo = params["Xtwo"], params["Ytwo"]
 Xthree, Ythree = params["Xthree"], params["Ythree"]
 
 
-# --- Eingaben / Konstanten ---
-D = 300 * 1000  # Überlandflugdistanz [m]
+
+
+Thermik = st.slider(
+    "Bitte den zu erwartenden Thermikdurchschnitt [m/s] eingeben",
+    min_value=1.00,     # Minimalwert
+    max_value=5.00,    # Maximalwert
+    value=2.00,         # Startwert
+    step=0.25,          # Schrittweite
+    format="%.2f"      # Anzeige mit 1 Nachkommastelle
+)
+
+
+#st.write(f"Eingegebener Thermikdurchschnitt: {Thermik}")
+
+
 
 # Thermikmodell
 thermik = {
-    "a": np.array([2.5,   3.5, 4.95, 5.95, 1.0]),            # [m/s]
+    "a": np.array([Thermik,   Thermik*1.4, Thermik*1.6, Thermik*1.9, 1.0]),            # [m/s]
     "b": np.array([-0.00005, -0.00008, -0.00009, -0.0001, 0.0]),
     "frac": np.array([10, 20, 20, 20, 30]) / 100.0,
     "type": ['A1', 'A2', 'B1', 'B2', 'GL']
@@ -71,7 +101,7 @@ rho = 1
 g = 9.81
 
 # Konstanten vorbereiten
-G_a_list = np.arange(G_a_min, G_a_max + 1)
+G_a_list = np.arange(G_a_min, G_a_max + 1, 5)
 n_G = len(G_a_list)
 
 # Ergebnis-Container (pre-allocate arrays)
@@ -300,12 +330,11 @@ geschw_eigen = x0_val  # x0(indexV_XC) in MATLAB; einfache Übernahme
 # Ausgabe-Tabelle (Thermikarten)
 thermikarten = thermik["type"]
 
-Steiggeschwindigkeit = [max_w_ST[0, idxV_XC], max_w_ST[1, idxV_XC], max_w_ST[2, idxV_XC], max_w_ST[3, idxV_XC], -0.8]
-Kreisradius = [r_max[0, idxV_XC], r_max[1, idxV_XC], r_max[2, idxV_XC], r_max[3, idxV_XC], 0]
-Haengewinkel = [phi_max[0, idxV_XC], phi_max[1, idxV_XC], phi_max[2, idxV_XC], phi_max[3, idxV_XC], 0]
-Vorfluggeschwindigkeit = [x_tan[0, idxV_XC], x_tan[1, idxV_XC], x_tan[2, idxV_XC], x_tan[3, idxV_XC], x_Gl[0, idxV_XC]]
-Flugzeit = [t_X[0, idxV_XC], t_X[1, idxV_XC], t_X[2, idxV_XC], t_X[3, idxV_XC], ((thermik["frac"][4] * D) / (x_Gl[0, idxV_XC] / 3.6)) / 60.0 if x_Gl[0, idxV_XC] != 0 else np.nan]
-
+Steiggeschwindigkeit = [round(v, 2) for v in [max_w_ST[0, idxV_XC], max_w_ST[1, idxV_XC], max_w_ST[2, idxV_XC], max_w_ST[3, idxV_XC], -0.8]]
+Kreisradius = [round(v, 1) for v in [r_max[0, idxV_XC], r_max[1, idxV_XC], r_max[2, idxV_XC], r_max[3, idxV_XC], 0]]
+Haengewinkel = [round(v, 0) for v in [phi_max[0, idxV_XC], phi_max[1, idxV_XC], phi_max[2, idxV_XC], phi_max[3, idxV_XC], 0]]
+Vorfluggeschwindigkeit = [round(v, 0) for v in [x_tan[0, idxV_XC], x_tan[1, idxV_XC], x_tan[2, idxV_XC], x_tan[3, idxV_XC], x_Gl[0, idxV_XC]]]
+Flugzeit = [round(v, 0) for v in [t_X[0, idxV_XC], t_X[1, idxV_XC], t_X[2, idxV_XC], t_X[3, idxV_XC], ((thermik["frac"][4] * D) / (x_Gl[0, idxV_XC] / 3.6)) / 60.0 if x_Gl[0, idxV_XC] != 0 else np.nan]]
 # Kurbelgeschwindigkeit-Berechnung: geschw_eigen * sqrt(1/cos(phi))
 def kurbel(geschw_eigen_local, phi_deg):
     try:
@@ -314,20 +343,20 @@ def kurbel(geschw_eigen_local, phi_deg):
         return np.nan
 
 Kurbelgeschw = [
-    kurbel(geschw_eigen, Haengewinkel[0]),
-    kurbel(geschw_eigen, Haengewinkel[1]),
-    kurbel(geschw_eigen, Haengewinkel[2]),
-    kurbel(geschw_eigen, Haengewinkel[3]),
-    Vorfluggeschwindigkeit[4]
+    round(kurbel(geschw_eigen, Haengewinkel[0]), 0),
+    round(kurbel(geschw_eigen, Haengewinkel[1]), 0),
+    round(kurbel(geschw_eigen, Haengewinkel[2]), 0),
+    round(kurbel(geschw_eigen, Haengewinkel[3]), 0),
+    round(Vorfluggeschwindigkeit[4], 0)
 ]
 
 T = pd.DataFrame({
-    "Steiggeschwindigkeit": Steiggeschwindigkeit,
-    "Kreisradius": Kreisradius,
-    "Haengewinkel": Haengewinkel,
-    "Kurbelgeschw.": Kurbelgeschw,
-    "Vorfluggeschwindigkeit": Vorfluggeschwindigkeit,
-    "Flugzeit": Flugzeit
+    "Steigen[m/s]": Steiggeschwindigkeit,
+    "Radius[m]": Kreisradius,
+    "Querlage[°]": Haengewinkel,
+    "Kurbelgeschw.[km/h]": Kurbelgeschw,
+    "Vorfluggeschw.[km/h]": Vorfluggeschwindigkeit,
+    "Flugzeit[min]": Flugzeit
 }, index=thermikarten)
 
 print("\nErgebnis-Tabelle (vereinfacht):")
@@ -347,6 +376,7 @@ if total_time > 0:
 else:
     print("Schnitt konnte nicht berechnet werden (Zeitdaten unvollständig).")
 
+total_time_h = total_time / 60.0
 
 # --- Ergebnis anzeigen ---
 st.subheader("Ergebnis-Tabelle (vereinfacht)")
@@ -355,7 +385,7 @@ st.dataframe(T)  # Dein DataFrame T aus dem Originalcode
 st.subheader("Zusammenfassung")
 st.text(f"max CrossCountrySpeed V_XC = {maxV_XC:.2f} km/h (bei Gewicht {G_a_list[idxV_XC]} kg)")
 st.text(f"Thermikdurchschnitt = {thermikdurch[idxV_XC]:.3f} m/s")
-st.text(f"Gesamt Flugzeit = {total_time:.2f} min")
-st.text(f"Schnitt = {schnitt:.2f} km/h")
+st.text(f"Gesamt Flugzeit = {total_time:.2f} min, {total_time_h:.2f} h")
+
 
 
