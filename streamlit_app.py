@@ -5,6 +5,7 @@ import warnings
 import logging
 logging.getLogger("streamlit").setLevel(logging.ERROR)
 import streamlit as st
+import matplotlib.pyplot as plt
 
 
 
@@ -497,6 +498,18 @@ else:
         st.text(f"Gesamt Flugzeit = {stunden} h {minuten} min")
         st.text(f"Gesamt Flugzeit = {total_time:.1f} min")
 
+
+
+        # Plot erstellen
+        fig, ax = plt.subplots()
+        ax.plot(G_a_list, V_XC, marker='o', linestyle='-', color='blue')
+        ax.set_xlabel("Flugzeuggewicht [kg]")
+        ax.set_ylabel("Cross-Country Geschwindigkeit V_XC [km/h]")
+        ax.set_title("V_XC in Abhängigkeit vom Flugzeuggewicht")
+        ax.grid(True)
+
+        # In Streamlit anzeigen
+        st.pyplot(fig)
 
 st.markdown(
     """
