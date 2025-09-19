@@ -99,13 +99,14 @@ if wahl == "...":
 else:
     # Flugzeugdaten übernehmen oder eigenen Flieger eingeben
     if wahl == "Eigener Flieger":
-        st.subheader("Eigene Flugdaten eingeben")
+        st.subheader("Eigene Flugzeugdaten eingeben")
         G_a_min = st.number_input("Minimales Abfluggewicht [kg]", value=300.0, step=1.0, format="%.1f")
         G_a_max = st.number_input("Maximales Abfluggewicht [kg]", value=500.0, step=1.0, format="%.1f")
-        S = st.number_input("Flügeloberfläche [m²]", value=10.5, step=0.1, format="%.1f")
-        G_p = st.number_input("Pilotengewicht + Ballast [kg]", value=340.0, step=1.0, format="%.1f")
+        S = st.number_input("Flügelfläche [m²]", value=10.5, step=0.1, format="%.1f")
+        
 
         st.subheader("Gleitpolare Punkte")
+        G_p = st.number_input("Referenzgewicht Flugzeugpolare [kg]", value=340.0, step=1.0, format="%.1f")
         Xone = st.number_input("X1 [km/h]", value=90.0, step=1.0, format="%.1f")
         Yone = st.number_input("Y1 [m/s]", value=-0.6, step=0.01, format="%.2f")
         Xtwo = st.number_input("X2 [km/h]", value=120.0, step=1.0, format="%.1f")
