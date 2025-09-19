@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 
 
+
 st.markdown('<h1 style="text-align: center;">Berechnung des optimalen Wasserballasts</h1>', unsafe_allow_html=True)
 
 flugzeuge = {
@@ -25,10 +26,10 @@ flugzeuge = {
         "G_a_min": 345,
         "G_a_max": 525,
         "S": 10.5,
-        "G_p": 346.5,
-        "Xone": 83, "Yone": -0.59,
-        "Xtwo": 120, "Ytwo": -0.7,
-        "Xthree": 150, "Ythree": -1.65
+        "G_p": 420,
+        "Xone": 95, "Yone": -0.65,
+        "Xtwo": 120, "Ytwo": -0.79,
+        "Xthree": 150, "Ythree": -1.11
     },
 
     "ASW19B": {
@@ -140,7 +141,7 @@ else:
 
     # --- Eingaben / Konstanten ---
     D = st.slider(
-        "Bitte PFD[km] eingeben",
+        "PFD[km] eingeben",
         min_value=100,     # Minimalwert
         max_value=1300,    # Maximalwert
         value=300,         # Startwert
@@ -156,7 +157,7 @@ else:
 
 
     Thermik = st.slider(
-        "Bitte den zu erwartenden Thermikdurchschnitt [m/s] eingeben",
+        "Thermikvorhersage[m/s] eingeben",
         min_value=1.00,     # Minimalwert
         max_value=5.00,    # Maximalwert
         value=2.00,         # Startwert
@@ -181,14 +182,18 @@ else:
     
     # Thermikmodell
     thermik = {
-        "a": np.array([Thermik,   Thermik*1.4, Thermik*1.6, Thermik*1.9, 1.0]),            # [m/s]
+        "a": np.array([Thermik*1.1,   Thermik*1.4, Thermik*1.65, Thermik*2.0, 1.0]),            # [m/s]
         "b": np.array([-0.00005, -0.00008, -0.00009, -0.0001, 0.0]),
         "frac": np.array([frac[0], frac[1], frac[2], frac[3], wolken]) / 100.0,
         "type": ['A1', 'A2', 'B1', 'B2', 'GL']
     }
 
     ballern= Thermik*0.5#(2/3)
-    
+    MAC= 0.8
+
+
+
+
     # Radius-Vektor (in m)
     r = np.arange(30, 240)  # 30 .. 239
 
@@ -212,6 +217,13 @@ else:
     t_X = np.zeros((5, n_G))
     x_Gl = np.zeros((1, n_G))
     y_Gl = np.zeros((1, n_G))
+
+    w_ST_all = np.zeros((5, n_G, len(r)))
+    w_A_all = np.zeros((5, n_G, len(r)))
+    w_SK_all = np.zeros((5, n_G, len(r)))
+    phi_all = np.zeros((5, n_G, len(r)))
+
+
 
     # Hilfsfunktion: berechne_w_ST (PLATZHALTER!)
     def berechne_w_ST(C_A_K, C_W_K, g, r_array, w_A_func, G, konst):
@@ -244,6 +256,8 @@ else:
 
             # Gesamtsteiggeschwindigkeit
             w_ST[i] = w_A[i] - w_SK[i]
+
+            
 
         return w_ST, w_A, w_SK, phi
 
@@ -303,6 +317,12 @@ else:
 
             w_ST, w_A, w_SK, phi = berechne_w_ST(C_A_K, C_W_K, g, r, w_A_func, G, konst)
 
+            w_ST_all[t, ui, :] = w_ST
+            w_A_all[t, ui, :] = w_A
+            w_SK_all[t, ui, :] = w_SK
+            phi_all[t, ui, :] = phi
+            
+                     
             # negative w_ST nicht zulassen (wie MATLAB)
             w_ST = np.maximum(w_ST, 0.0)
 
@@ -314,7 +334,7 @@ else:
             phi_max[t, ui] = phi[idx_max]
 
             # M als 2/3 des Maximums (MATLAB)
-            M = max_w_ST[t, ui] * 0.8
+            M = max_w_ST[t, ui] * MAC
 
             # Diskriminanten-Funktion Delta(m) = (b - m)^2 - 4 a (c - M)
             # analytische Lösung: b - m = ± 2 sqrt(a*(c - M))
@@ -496,20 +516,87 @@ else:
         minuten = int((total_time_h - stunden) * 60)   # Rest in Minuten
 
         st.text(f"Gesamt Flugzeit = {stunden} h {minuten} min")
-        st.text(f"Gesamt Flugzeit = {total_time:.1f} min")
+       
 
 
+        plot_option = st.radio("Wähle den Plot:", ["V_XC vs Gewicht", "Kreisflugpolare"])
 
-        # Plot erstellen
-        fig, ax = plt.subplots()
-        ax.plot(G_a_list, V_XC, marker='o', linestyle='-', color='blue')
-        ax.set_xlabel("Flugzeuggewicht [kg]")
-        ax.set_ylabel("Cross-Country Geschwindigkeit V_XC [km/h]")
-        ax.set_title("V_XC in Abhängigkeit vom Flugzeuggewicht")
-        ax.grid(True)
+        if plot_option == "V_XC vs Gewicht":
+            # Plot erstellen
+            fig, ax = plt.subplots()
+            ax.plot(G_a_list, V_XC, linestyle='-', color='cyan')
+            ax.set_xlabel("Flugzeuggewicht [kg]", color='white')
+            ax.set_ylabel("Cross Country Speed[km/h]", color='white')
+            ax.set_title("XC Speed in Abhängigkeit vom Flugzeuggewicht", color='white')
+            ax.grid(True, color='gray', linestyle='--', alpha=0.5)
+            # Achsen-Ticks weiß
+            ax.tick_params(axis='x', colors='white')
+            ax.tick_params(axis='y', colors='white')
+            # In Streamlit anzeigen
+            st.pyplot(fig, transparent=True)
 
-        # In Streamlit anzeigen
-        st.pyplot(fig)
+        elif plot_option == "Kreisflugpolare":
+
+            # Optimaler Gewicht-Index
+            ui_opt = idxV_XC
+            r_plot = r
+            labels = thermik["type"]
+            colors = ['cyan','yellow','magenta','orange','green']
+
+            # Werte für das optimale Gewicht extrahieren
+            w_ST_plot = w_ST_all[:, ui_opt, :]  # shape: (5, len(r))
+            w_A_plot  = w_A_all[:, ui_opt, :]
+            w_SK_plot = w_SK_all[:, ui_opt, :]
+            phi_plot  = phi_all[:, ui_opt, :]
+           
+
+            fig, ax = plt.subplots(figsize=(8,5))
+
+            # Alle Thermiktypen plotten
+            #for t in range(4):
+            t=3
+            ax.plot(r_plot, w_ST_plot[t,:], color='cyan', label=f"w_ST {labels[t]}")
+            ax.plot(r_plot, w_A_plot[t,:], '--', color='magenta', label=f"w_A {labels[t]}")
+            ax.plot(r_plot, -w_SK_plot[t,:], ':', color='orange', label=f"w_SK {labels[t]}")
+            
+
+            # Achsen, Titel, Grid
+            G_opt = G_a_list[ui_opt]
+            ax.set_xlabel("Radius [m]", color='white')
+            ax.set_ylabel("Steiggeschwindigkeit [m/s]", color='white')
+            ax.set_title(f"Steigwert bei optimalem Gewicht G = {G_opt} kg", color='white')
+            ax.tick_params(axis='x', colors='white')
+            ax.tick_params(axis='y', colors='white')
+            ax.grid(True, color='gray', linestyle='--', alpha=0.5)
+            ax.set_ylim(-3, np.ceil(Thermik * 1.7))
+            ax.set_xlim(40, 160)
+            # Transparenter Hintergrund
+            ax.patch.set_alpha(0.0)
+            fig.patch.set_alpha(0.0)
+            # Punkte markieren: phi = 25°, 35°, 45°, 55° 
+            phi_target = [20, 25, 30, 35, 40, 45, 50, 55, 60]
+
+            # Suche zu jedem Zielwinkel den nächsten Wert in phi_plot[t, :]
+            for phi_deg in phi_target:
+                # Rundung auf 1°
+                idx_phi = np.argmin(np.abs(np.round(phi_plot[t,:]) - phi_deg))
+                r_val = r_plot[idx_phi]
+                w_val = w_ST_plot[t, idx_phi]
+                
+                # Punkt markieren
+                ax.plot(r_val, w_val, 'o', color='white', markersize=5)
+                # Phi-Wert als Text anzeigen
+                ax.text(r_val+2, w_val, f"{phi_plot[t, idx_phi]:.0f}°", color='white')
+
+
+            # Punkte markieren und beschriften
+        
+            leg = ax.legend(loc='upper right', facecolor='black', framealpha=0.5)
+            for text in leg.get_texts():
+                text.set_color("white")
+
+            # Streamlit Plot
+            st.pyplot(fig, transparent=True)
 
 st.markdown(
     """
