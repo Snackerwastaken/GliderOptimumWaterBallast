@@ -6,7 +6,9 @@ import logging
 logging.getLogger("streamlit").setLevel(logging.ERROR)
 import streamlit as st
 
-st.markdown('<h1 style="text-align: center;">Berechnung des optimalen Wasserballasts</h2>', unsafe_allow_html=True)
+
+
+st.markdown('<h1 style="text-align: center;">Berechnung des optimalen Wasserballasts</h1>', unsafe_allow_html=True)
 
 flugzeuge = {
     "LS4": {
@@ -74,6 +76,15 @@ flugzeuge = {
         "Xtwo": 120, "Ytwo": -0.61,
         "Xthree": 150, "Ythree": -0.94
     },
+    "Arcus": {
+        "G_a_min": 500 ,
+        "G_a_max": 850,
+        "S":15.59,
+        "G_p": 623.6,
+        "Xone": 90, "Yone": -0.56,
+        "Xtwo": 120, "Ytwo": -0.7,
+        "Xthree": 150, "Ythree": -1.03
+    },
     "Duo Discus XLT": {
         "G_a_min": 410,
         "G_a_max": 750,
@@ -89,7 +100,7 @@ flugzeuge = {
 
 wahl = st.selectbox(
     "Flugzeug auswählen",
-    options=["...", "Duo Discus XLT", "LS4", "LS8", "ASW19B", "LS1f","LS7","Ventus 3 - 18m", "ASG29 - 18m", "Eigener Flieger"],
+    options=["...", "Duo Discus XLT", "LS4", "LS8", "ASW19B", "LS1f","LS7","Ventus 3 - 18m", "Arcus", "ASG29 - 18m", "Eigener Flieger"],
     index=0
 )
 
@@ -475,7 +486,7 @@ else:
 
 
         st.subheader("Flugwerte")
-        st.text(f"theoretisch erreichbare Überlandschnittgeschw. = {maxV_XC:.2f} km/h")
+        st.text(f"erreichbare Überlandschnittgeschw. = {maxV_XC:.2f} km/h")
         st.text(f"Optimales Gesamtgewicht = {G_a_list[idxV_XC]} kg")        
         st.text(f"Thermikdurchschnitt = {thermikdurch[idxV_XC]:.2f} m/s")
         
@@ -485,6 +496,16 @@ else:
 
         st.text(f"Gesamt Flugzeit = {stunden} h {minuten} min")
         st.text(f"Gesamt Flugzeit = {total_time:.1f} min")
+
+
+st.markdown(
+    """
+    <div style="text-align: center; font-size: 12px; color: gray; margin-top: 50px;">
+    © 2025 Alexander Fuchshuber & Paul Bauer – Alle Rechte vorbehalten
+    </div>
+    """,
+    unsafe_allow_html=True
+)        
 
     
 
