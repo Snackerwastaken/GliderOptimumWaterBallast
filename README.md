@@ -1,19 +1,15 @@
-# 🎬 Movies dataset template
+# ✈️ Berechnung optimaler Wasserballast für Segelflieger
 
-A simple Streamlit app showing movie data from [The Movie Database (TMDB)](https://www.kaggle.com/datasets/tmdb/tmdb-movie-metadata). 
+🚀 Dieses Projekt ermöglicht es, für verschiedene Segelflugzeuge das optimale Wasserballastgewicht zu berechnen. Zusätzlich wird der Überlandschnitt (XC-Speed) angezeigt.
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://movies-dataset-template.streamlit.app/)
+🔹 Funktionen:
 
-### How to run it on your own machine
+Auswahl zwischen vordefinierten Segelflugzeugen oder Eingabe eines eigenen Flugzeugs
 
-1. Install the requirements
+Berechnung des optimalen Wasserballastes basierend auf den Polaren
 
-   ```
-   $ pip install -r requirements.txt
-   ```
+Anzeige der resultierenden Überlandgeschwindigkeit
 
-2. Run the app
+Möglichkeit, Wolkenstraßen und Thermikstärke individuell zu variieren
 
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+Das Tool basiert auf Streamlit und ist einfach über den Browser nutzbar.
