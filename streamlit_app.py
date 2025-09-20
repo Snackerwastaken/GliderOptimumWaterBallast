@@ -182,7 +182,7 @@ else:
     
     # Thermikmodell
     thermik = {
-        "a": np.array([Thermik*1,   Thermik*1.35, Thermik*1.65, Thermik*2.0, 1.0]),            # [m/s]
+        "a": np.array([Thermik*1,   Thermik*1.4, Thermik*1.65, Thermik*2.0, 1.0]),            # [m/s]
         "b": np.array([-0.00005, -0.00008, -0.00009, -0.0001, 0.0]) * scale,
         "frac": np.array([frac[0], frac[1], frac[2], frac[3], wolken]) / 100.0,
         "type": ['A1', 'A2', 'B1', 'B2', 'GL']
@@ -199,7 +199,7 @@ else:
     r = np.arange(30, 240)  # 30 .. 239
 
     # Umgebung
-    rho = 0.8
+    rho = 1
     g = 9.81
 
     # Konstanten vorbereiten
