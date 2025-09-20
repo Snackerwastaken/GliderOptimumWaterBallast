@@ -79,7 +79,7 @@ flugzeuge = {
         "Xthree": 150, "Ythree": -0.94
     },
     "Arcus": {
-        "G_a_min": 500 ,
+        "G_a_min": 570,
         "G_a_max": 850,
         "S":15.59,
         "G_p": 623.6,
@@ -88,13 +88,13 @@ flugzeuge = {
         "Xthree": 150, "Ythree": -1.03
     },
     "Duo Discus XLT": {
-        "G_a_min": 410,
+        "G_a_min": 570,
         "G_a_max": 750,
         "S":16.4,
         "G_p":700 ,
-        "Xone": 95, "Yone": -0.6,
+        "Xone": 95, "Yone": -0.625,
         "Xtwo": 120, "Ytwo": -0.75,
-        "Xthree": 150, "Ythree": -1.15
+        "Xthree": 150, "Ythree": -1.1
     }
 
 }
