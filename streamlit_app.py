@@ -178,17 +178,18 @@ else:
     gesamt = np.sum(anteile) + wolken
     anteile_skaliert = anteile / np.sum(anteile) * (100 - wolken)
     frac = np.append(anteile_skaliert, wolken) 
-
+    scale=Thermik/2.7
     
     # Thermikmodell
     thermik = {
-        "a": np.array([Thermik*1.1,   Thermik*1.4, Thermik*1.65, Thermik*2.0, 1.0]),            # [m/s]
-        "b": np.array([-0.00005, -0.00008, -0.00009, -0.0001, 0.0]),
+        "a": np.array([Thermik*1,   Thermik*1.35, Thermik*1.65, Thermik*2.0, 1.0]),            # [m/s]
+        "b": np.array([-0.00005, -0.00008, -0.00009, -0.0001, 0.0]) * scale,
         "frac": np.array([frac[0], frac[1], frac[2], frac[3], wolken]) / 100.0,
         "type": ['A1', 'A2', 'B1', 'B2', 'GL']
     }
-
-    ballern= Thermik*0.5#(2/3)
+    
+        
+    ballern= Thermik*0.55#(2/3)
     MAC= 0.8
 
 
@@ -198,7 +199,7 @@ else:
     r = np.arange(30, 240)  # 30 .. 239
 
     # Umgebung
-    rho = 1
+    rho = 0.8
     g = 9.81
 
     # Konstanten vorbereiten
@@ -448,6 +449,9 @@ else:
 
 
     if np.any(max_w_ST == 0):
+
+
+        
         st.info("ℹ️ Hinweis: Thermik ist zu schwach")
 
     else:
