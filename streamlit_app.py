@@ -157,7 +157,7 @@ else:
 
 
     Thermik = st.slider(
-        "Thermikvorhersage[m/s] eingeben",
+        "Thermikvorhersage[m/s] aus SKYSIGHT eingeben",
         min_value=1.00,     # Minimalwert
         max_value=5.00,    # Maximalwert
         value=2.00,         # Startwert
@@ -178,6 +178,8 @@ else:
     gesamt = np.sum(anteile) + wolken
     anteile_skaliert = anteile / np.sum(anteile) * (100 - wolken)
     frac = np.append(anteile_skaliert, wolken) 
+    
+    
     scale=Thermik/2.7
     
     # Thermikmodell
@@ -189,7 +191,7 @@ else:
     }
     
         
-    ballern= Thermik*0.55#(2/3)
+    ballern= Thermik*0.4#(2/3)
     MAC= 0.8
 
 
@@ -558,7 +560,7 @@ else:
 
             # Alle Thermiktypen plotten
             #for t in range(4):
-            t=3
+            t=2
             ax.plot(r_plot, w_ST_plot[t,:], color='cyan', label=f"w_ST {labels[t]}")
             ax.plot(r_plot, w_A_plot[t,:], '--', color='magenta', label=f"w_A {labels[t]}")
             ax.plot(r_plot, -w_SK_plot[t,:], ':', color='orange', label=f"w_SK {labels[t]}")
